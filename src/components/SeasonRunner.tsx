@@ -19,7 +19,7 @@ interface SeasonRunnerProps {
   handTypes: HandTypeRow[]
   tacticsPool: TacticRow[]
   trophiesPool: TrophyRow[]
-  userId: string
+  userId: string | null
   groupField?: 'championnat' | 'club'
   rngSeedBase?: number
   dailyMode?: boolean

@@ -26,9 +26,9 @@ export default function App() {
   const [isPro, setIsPro] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<GameMode | null>(null)
-  const [pendingMode, setPendingMode] = useState<GameMode | null>(null)
   const [championshipDeck, setChampionshipDeck] = useState<PlayerCard[] | null>(null)
   const [screen, setScreen] = useState<Screen>('home')
+  const [showAuth, setShowAuth] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -60,15 +60,25 @@ export default function App() {
       })
   }, [session])
 
+  // Authentification desactivee pour l'instant : deck/hand_types/tactics/trophies sont en lecture
+  // publique, donc on les charge sans attendre une session. isPro reste false pour les invites.
   useEffect(() => {
-    if (!session) return
-    Promise.all([fetchHandTypes(), fetchTactics(), fetchTrophies(), fetchIsPro(session.user.id)])
-      .then(([handTypesData, tacticsData, trophiesData, isProData]) => {
+    Promise.all([fetchHandTypes(), fetchTactics(), fetchTrophies()])
+      .then(([handTypesData, tacticsData, trophiesData]) => {
         setHandTypes(handTypesData)
         setTactics(tacticsData)
         setTrophies(trophiesData)
-        setIsPro(isProData)
       })
+      .catch((err) => setError(err.message))
+  }, [])
+
+  useEffect(() => {
+    if (!session) {
+      setIsPro(false)
+      return
+    }
+    fetchIsPro(session.user.id)
+      .then(setIsPro)
       .catch((err) => setError(err.message))
   }, [session])
 
@@ -81,17 +91,11 @@ export default function App() {
     }
   }, [mode])
 
-  // Une fois connecte, on reprend automatiquement le mode que l'invite voulait lancer.
-  useEffect(() => {
-    if (session && pendingMode) {
-      setMode(pendingMode)
-      setPendingMode(null)
-    }
-  }, [session, pendingMode])
-
+  // Le Defi quotidien et le Duel ecrivent un score lie a un compte : ils restent derriere la
+  // connexion. Saison club/championnat sont jouables sans compte.
   const handleSelectMode = (selected: GameMode) => {
-    if (!session) {
-      setPendingMode(selected)
+    if ((selected.type === 'daily' || selected.type === 'duel') && !session) {
+      setShowAuth(true)
       return
     }
     setMode(selected)
@@ -105,33 +109,19 @@ export default function App() {
     return <LeaderboardScreen onBack={() => setScreen('home')} />
   }
 
-  if (!session) {
-    if (pendingMode) {
-      return (
-        <div>
-          <div style={{ maxWidth: 380, margin: '16px auto 0', padding: '0 16px' }}>
-            <button
-              type="button"
-              onClick={() => setPendingMode(null)}
-              style={{ fontSize: 12, background: 'none', border: 'none', color: 'var(--sqx-muted)', cursor: 'pointer' }}
-            >
-              ← {t('auth.backToMenu')}
-            </button>
-          </div>
-          <p style={{ textAlign: 'center', color: 'var(--sqx-muted)', fontSize: 13, maxWidth: 380, margin: '4px auto 0' }}>
-            {t('auth.requiredForPlay')}
-          </p>
-          <Auth />
-        </div>
-      )
-    }
-
+  if (showAuth) {
     return (
       <div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 16px' }}>
-          <LanguageSwitcher />
+        <div style={{ maxWidth: 380, margin: '16px auto 0', padding: '0 16px' }}>
+          <button
+            type="button"
+            onClick={() => setShowAuth(false)}
+            style={{ fontSize: 12, background: 'none', border: 'none', color: 'var(--sqx-muted)', cursor: 'pointer' }}
+          >
+            ← {t('auth.backToMenu')}
+          </button>
         </div>
-        <HomeScreen isPro={false} deck={deck} onSelect={handleSelectMode} onOpenLeaderboard={() => setScreen('leaderboard')} />
+        <Auth />
       </div>
     )
   }
@@ -144,37 +134,49 @@ export default function App() {
     return <p style={{ padding: 40 }}>{t('app.loadingDeck')}</p>
   }
 
-  const pseudo = (session.user.user_metadata?.pseudo as string | undefined) || session.user.email!.split('@')[0]
+  const pseudo = session
+    ? (session.user.user_metadata?.pseudo as string | undefined) || session.user.email!.split('@')[0]
+    : null
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16, padding: '8px 16px' }}>
         <LanguageSwitcher />
-        <button
-          type="button"
-          onClick={() => supabase.auth.signOut()}
-          style={{ fontSize: 12, background: 'none', border: 'none', color: 'var(--sqx-muted)', cursor: 'pointer' }}
-        >
-          {t('app.logout', { email: session.user.email })}
-        </button>
+        {session ? (
+          <button
+            type="button"
+            onClick={() => supabase.auth.signOut()}
+            style={{ fontSize: 12, background: 'none', border: 'none', color: 'var(--sqx-muted)', cursor: 'pointer' }}
+          >
+            {t('app.logout', { email: session.user.email })}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowAuth(true)}
+            style={{ fontSize: 12, background: 'none', border: 'none', color: 'var(--sqx-muted)', cursor: 'pointer' }}
+          >
+            {t('auth.switchToLogin')}
+          </button>
+        )}
       </div>
 
       {!mode ? (
         <HomeScreen isPro={isPro} deck={deck} onSelect={handleSelectMode} onOpenLeaderboard={() => setScreen('leaderboard')} />
-      ) : mode.type === 'daily' ? (
+      ) : mode.type === 'daily' && session ? (
         <DailyChallengeFlow
           userId={session.user.id}
-          pseudo={pseudo}
+          pseudo={pseudo!}
           deck={deck}
           handTypes={handTypes}
           tacticsPool={tactics}
           trophiesPool={trophies}
           onExitMode={() => setMode(null)}
         />
-      ) : mode.type === 'duel' ? (
+      ) : mode.type === 'duel' && session ? (
         <DuelFlow
           userId={session.user.id}
-          pseudo={pseudo}
+          pseudo={pseudo!}
           deck={deck}
           handTypes={handTypes}
           tacticsPool={tactics}
@@ -192,7 +194,7 @@ export default function App() {
             handTypes={handTypes}
             tacticsPool={tactics}
             trophiesPool={trophies}
-            userId={session.user.id}
+            userId={session?.user.id ?? null}
             groupField="club"
             onExitMode={() => setMode(null)}
           />
@@ -205,7 +207,7 @@ export default function App() {
           handTypes={handTypes}
           tacticsPool={tactics}
           trophiesPool={trophies}
-          userId={session.user.id}
+          userId={session?.user.id ?? null}
           groupField="championnat"
           onExitMode={() => setMode(null)}
         />
