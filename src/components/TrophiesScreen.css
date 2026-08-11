@@ -1,0 +1,79 @@
+.sqx-trophies-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.sqx-trophies {
+  background: var(--sqx-panel);
+  border: 1px solid var(--sqx-panel-border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  color: var(--sqx-cream);
+}
+
+.sqx-trophies__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sqx-trophies__header h2 {
+  margin: 0;
+  font-family: var(--sqx-font-display);
+  color: var(--sqx-gold-light);
+}
+
+.sqx-trophies__family h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--sqx-muted);
+  margin: 20px 0 8px;
+}
+
+.sqx-trophies__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.sqx-trophies__table th {
+  text-align: center;
+  font-weight: 600;
+  color: var(--sqx-muted);
+  padding: 4px;
+}
+
+.sqx-trophies__ligne {
+  padding: 6px 4px;
+  white-space: nowrap;
+}
+
+.sqx-trophies__cell {
+  text-align: center;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.sqx-trophies__cell--unlocked {
+  background: rgba(240, 185, 11, 0.18);
+}
+
+.sqx-trophies__cell--locked {
+  color: #665f52;
+}
+
+.sqx-trophies__cell--empty {
+  background: transparent;
+}

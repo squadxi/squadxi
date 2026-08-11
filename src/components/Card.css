@@ -1,0 +1,100 @@
+.sqx-card {
+  --sqx-accent: #666;
+  position: relative;
+  width: 118px;
+  height: 166px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.22) 55%, rgba(0, 0, 0, 0.55) 100%),
+    var(--sqx-accent);
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--sqx-font-body);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+  overflow: hidden;
+}
+
+.sqx-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.5);
+}
+
+.sqx-card--selected {
+  transform: translateY(-16px);
+  border-color: var(--sqx-gold);
+  box-shadow: 0 0 0 2px var(--sqx-gold), 0 12px 18px rgba(0, 0, 0, 0.55);
+}
+
+.sqx-card--highlighted {
+  box-shadow: 0 0 0 3px var(--sqx-gold-light), 0 12px 18px rgba(0, 0, 0, 0.55);
+}
+
+.sqx-card--dimmed {
+  opacity: 0.32;
+  filter: grayscale(0.6);
+}
+
+.sqx-card__corner {
+  position: absolute;
+  font-family: var(--sqx-font-display);
+  font-weight: 600;
+  font-size: 17px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  line-height: 1;
+}
+
+.sqx-card__corner--tl {
+  top: 8px;
+  left: 10px;
+}
+
+.sqx-card__corner--br {
+  bottom: 34px;
+  right: 10px;
+  transform: rotate(180deg);
+}
+
+.sqx-card__silhouette {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 74px;
+  height: 74px;
+  color: #fff;
+  opacity: 0.85;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+.sqx-card__footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 8, 6, 0.55);
+  padding: 5px 8px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sqx-card__nom {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sqx-card__meta {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

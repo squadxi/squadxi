@@ -1,0 +1,102 @@
+:root {
+  --sqx-bg: radial-gradient(ellipse at 50% -20%, #132821 0%, #0b0c10 55%, #0b0c10 100%);
+  --sqx-panel: #171a24;
+  --sqx-panel-light: #1f2230;
+  --sqx-panel-border: #2e3140;
+  --sqx-gold: #f0b90b;
+  --sqx-gold-light: #ffd35c;
+  --sqx-gold-shadow: #a97c00;
+  --sqx-cream: #f5f3ee;
+  --sqx-muted: #9a9aa8;
+  --sqx-green: #2fae66;
+  --sqx-red: #e8495e;
+  --sqx-pitch-a: #0c1d15;
+  --sqx-pitch-b: #0e2017;
+  --sqx-pitch-line: rgba(47, 191, 107, 0.28);
+  --sqx-font-display: 'Anton', system-ui, sans-serif;
+  --sqx-font-body: 'Archivo', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--sqx-bg);
+  background-attachment: fixed;
+  color: var(--sqx-cream);
+  font-family: var(--sqx-font-body);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--sqx-font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+button {
+  font-family: var(--sqx-font-body);
+}
+
+.sqx-button {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--sqx-panel-border);
+  background: var(--sqx-panel-light);
+  color: var(--sqx-cream);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.4);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, filter 0.15s ease;
+}
+
+.sqx-button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.sqx-button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+.sqx-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sqx-button--primary {
+  background: linear-gradient(180deg, var(--sqx-gold-light), var(--sqx-gold));
+  color: #241a04;
+  border: none;
+  box-shadow: 0 5px 0 0 var(--sqx-gold-shadow);
+}
+
+.sqx-button--primary:active:not(:disabled) {
+  box-shadow: 0 2px 0 0 var(--sqx-gold-shadow);
+}
+
+.sqx-panel {
+  background: var(--sqx-panel);
+  border: 1px solid var(--sqx-panel-border);
+  border-radius: 14px;
+}
+
+.sqx-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--sqx-muted);
+}

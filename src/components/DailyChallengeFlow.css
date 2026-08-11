@@ -1,0 +1,54 @@
+.sqx-daily {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 0 16px;
+  color: var(--sqx-cream);
+  text-align: center;
+}
+
+.sqx-daily h1 {
+  font-family: var(--sqx-font-display);
+  color: var(--sqx-gold-light);
+}
+
+.sqx-daily__subtitle {
+  color: var(--sqx-muted);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.sqx-daily__finished {
+  background: rgba(47, 174, 102, 0.16);
+  color: #d9f9e6;
+  border: 1px solid rgba(47, 174, 102, 0.4);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.sqx-daily__played {
+  color: var(--sqx-cream);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.sqx-daily h2 {
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--sqx-muted);
+  margin-top: 28px;
+}
+
+.sqx-daily__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.sqx-daily__table th,
+.sqx-daily__table td {
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 13px;
+  border-bottom: 1px solid var(--sqx-panel-border);
+}

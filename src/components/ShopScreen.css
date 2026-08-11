@@ -1,0 +1,126 @@
+.sqx-shop {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+  color: var(--sqx-cream);
+  text-align: center;
+}
+
+.sqx-shop__title {
+  font-family: var(--sqx-font-display);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--sqx-gold-light);
+  margin-bottom: 4px;
+}
+
+.sqx-shop__gain {
+  color: #6fe3a1;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.sqx-shop__balance {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.sqx-shop__offers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.sqx-tactic {
+  border: 2px solid var(--sqx-panel-border);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--sqx-panel);
+}
+
+.sqx-tactic--commune {
+  border-color: #6b6255;
+}
+
+.sqx-tactic--rare {
+  border-color: #4f8fe0;
+}
+
+.sqx-tactic--legendaire {
+  border-color: var(--sqx-gold);
+  background: linear-gradient(160deg, #2b2410, var(--sqx-panel));
+}
+
+.sqx-tactic__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.sqx-tactic__nom {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--sqx-cream);
+}
+
+.sqx-tactic__rarete {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--sqx-muted);
+}
+
+.sqx-tactic__effet {
+  font-size: 12px;
+  color: var(--sqx-muted);
+  flex: 1;
+  margin: 0;
+}
+
+.sqx-tactic__soon {
+  font-size: 11px;
+  color: var(--sqx-gold);
+  font-style: italic;
+  margin: 0;
+}
+
+.sqx-shop__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sqx-shop__owned {
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.sqx-shop__owned h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--sqx-muted);
+}
+
+.sqx-shop__owned ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sqx-shop__owned li {
+  background: var(--sqx-panel-light);
+  border: 1px solid var(--sqx-panel-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+}

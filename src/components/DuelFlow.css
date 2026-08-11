@@ -1,0 +1,66 @@
+.sqx-duel {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 0 16px;
+  color: var(--sqx-cream);
+  text-align: center;
+}
+
+.sqx-duel h1 {
+  font-family: var(--sqx-font-display);
+  color: var(--sqx-gold-light);
+}
+
+.sqx-duel__section {
+  border: 1px solid var(--sqx-panel-border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--sqx-panel);
+}
+
+.sqx-duel__section h2 {
+  font-size: 14px;
+  margin: 0 0 10px;
+  color: var(--sqx-cream);
+}
+
+.sqx-duel__input {
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  text-align: center;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--sqx-panel-border);
+  background: var(--sqx-bg-deep);
+  color: var(--sqx-cream);
+  margin-right: 8px;
+  width: 120px;
+  text-transform: uppercase;
+}
+
+.sqx-duel__error {
+  color: #ff9aa8;
+  font-weight: 600;
+}
+
+.sqx-duel__code {
+  font-family: var(--sqx-font-display);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--sqx-gold-light);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.sqx-duel__result {
+  margin: 20px 0;
+  font-size: 15px;
+}
+
+.sqx-duel__result strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 18px;
+  color: var(--sqx-gold-light);
+}
