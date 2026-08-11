@@ -1,0 +1,276 @@
+-- SquadXI - schema initial + seed data
+-- Genere a partir du GDD v0.1 (65 joueurs, bareme, 30 tactiques, 96 trophees)
+
+create table if not exists players (
+  id integer primary key,
+  championnat text not null,
+  note integer not null check (note between 2 and 14),
+  symbole text not null,
+  nom text not null,
+  nationalite text not null
+);
+
+create table if not exists hand_types (
+  nom text primary key,
+  condition text not null,
+  base_points integer not null,
+  base_mult numeric not null
+);
+
+create table if not exists tactics (
+  id serial primary key,
+  nom text not null unique,
+  famille text not null,
+  rarete text not null check (rarete in ('Commune','Rare','Legendaire')),
+  prix integer not null,
+  effet text not null
+);
+
+create table if not exists trophies (
+  id serial primary key,
+  famille text not null check (famille in ('Performance','Collection','Progression')),
+  ligne text not null,
+  palier text not null check (palier in ('Amateur','Semi-pro','Pro','Legende')),
+  condition text not null,
+  pro_only boolean not null default false
+);
+
+-- Profils utilisateur (etendant auth.users de Supabase)
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  pseudo text unique,
+  is_pro boolean not null default false,
+  pro_expires_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+-- Progression des trophees par utilisateur
+create table if not exists user_trophies (
+  user_id uuid references profiles(id) on delete cascade,
+  trophy_id integer references trophies(id) on delete cascade,
+  unlocked_at timestamptz not null default now(),
+  primary key (user_id, trophy_id)
+);
+
+-- Seed: players (65)
+insert into players (id, championnat, note, symbole, nom, nationalite) values
+(1, 'Premier League', 14, 'As', 'Thierry Henry', 'France'),
+(2, 'Premier League', 13, 'Roi', 'Cristiano Ronaldo', 'Portugal'),
+(3, 'Premier League', 12, 'Dame', 'Steven Gerrard', 'Angleterre'),
+(4, 'Premier League', 11, 'Valet', 'Frank Lampard', 'Angleterre'),
+(5, 'Premier League', 10, '10', 'Didier Drogba', 'Cote d''Ivoire'),
+(6, 'Premier League', 9, '9', 'Sergio Aguero', 'Argentine'),
+(7, 'Premier League', 8, '8', 'Eric Cantona', 'France'),
+(8, 'Premier League', 7, '7', 'Ryan Giggs', 'Pays de Galles'),
+(9, 'Premier League', 6, '6', 'Roy Keane', 'Irlande'),
+(10, 'Premier League', 5, '5', 'Peter Schmeichel', 'Danemark'),
+(11, 'Premier League', 4, '4', 'John Terry', 'Angleterre'),
+(12, 'Premier League', 3, '3', 'Patrick Vieira', 'France'),
+(13, 'Premier League', 2, '2', 'Robbie Fowler', 'Angleterre'),
+(14, 'Liga', 14, 'As', 'Lionel Messi', 'Argentine'),
+(15, 'Liga', 13, 'Roi', 'Alfredo Di Stefano', 'Argentine'),
+(16, 'Liga', 12, 'Dame', 'Andres Iniesta', 'Espagne'),
+(17, 'Liga', 11, 'Valet', 'Xavi Hernandez', 'Espagne'),
+(18, 'Liga', 10, '10', 'Ronaldinho', 'Bresil'),
+(19, 'Liga', 9, '9', 'Raul Gonzalez', 'Espagne'),
+(20, 'Liga', 8, '8', 'Iker Casillas', 'Espagne'),
+(21, 'Liga', 7, '7', 'Karim Benzema', 'France'),
+(22, 'Liga', 6, '6', 'Sergio Ramos', 'Espagne'),
+(23, 'Liga', 5, '5', 'Luis Suarez', 'Uruguay'),
+(24, 'Liga', 4, '4', 'Carles Puyol', 'Espagne'),
+(25, 'Liga', 3, '3', 'Ronaldo Nazario', 'Bresil'),
+(26, 'Liga', 2, '2', 'Diego Forlan', 'Uruguay'),
+(27, 'Serie A', 14, 'As', 'Diego Maradona', 'Argentine'),
+(28, 'Serie A', 13, 'Roi', 'Paolo Maldini', 'Italie'),
+(29, 'Serie A', 12, 'Dame', 'Andrea Pirlo', 'Italie'),
+(30, 'Serie A', 11, 'Valet', 'Francesco Totti', 'Italie'),
+(31, 'Serie A', 10, '10', 'Alessandro Del Piero', 'Italie'),
+(32, 'Serie A', 9, '9', 'Roberto Baggio', 'Italie'),
+(33, 'Serie A', 8, '8', 'Zinedine Zidane', 'France'),
+(34, 'Serie A', 7, '7', 'Gianluigi Buffon', 'Italie'),
+(35, 'Serie A', 6, '6', 'Andriy Shevchenko', 'Ukraine'),
+(36, 'Serie A', 5, '5', 'Alessandro Nesta', 'Italie'),
+(37, 'Serie A', 4, '4', 'Javier Zanetti', 'Argentine'),
+(38, 'Serie A', 3, '3', 'Samuel Eto''o', 'Cameroun'),
+(39, 'Serie A', 2, '2', 'Marco Materazzi', 'Italie'),
+(40, 'Bundesliga', 14, 'As', 'Franz Beckenbauer', 'Allemagne'),
+(41, 'Bundesliga', 13, 'Roi', 'Gerd Muller', 'Allemagne'),
+(42, 'Bundesliga', 12, 'Dame', 'Robert Lewandowski', 'Pologne'),
+(43, 'Bundesliga', 11, 'Valet', 'Manuel Neuer', 'Allemagne'),
+(44, 'Bundesliga', 10, '10', 'Karl-Heinz Rummenigge', 'Allemagne'),
+(45, 'Bundesliga', 9, '9', 'Lothar Matthaus', 'Allemagne'),
+(46, 'Bundesliga', 8, '8', 'Michael Ballack', 'Allemagne'),
+(47, 'Bundesliga', 7, '7', 'Arjen Robben', 'Pays-Bas'),
+(48, 'Bundesliga', 6, '6', 'Franck Ribery', 'France'),
+(49, 'Bundesliga', 5, '5', 'Oliver Kahn', 'Allemagne'),
+(50, 'Bundesliga', 4, '4', 'Philipp Lahm', 'Allemagne'),
+(51, 'Bundesliga', 3, '3', 'Miroslav Klose', 'Allemagne'),
+(52, 'Bundesliga', 2, '2', 'Mario Gotze', 'Allemagne'),
+(53, 'Ligue 1', 14, 'As', 'Kylian Mbappe', 'France'),
+(54, 'Ligue 1', 13, 'Roi', 'Michel Platini', 'France'),
+(55, 'Ligue 1', 12, 'Dame', 'Just Fontaine', 'France'),
+(56, 'Ligue 1', 11, 'Valet', 'George Weah', 'Liberia'),
+(57, 'Ligue 1', 10, '10', 'Neymar Jr', 'Bresil'),
+(58, 'Ligue 1', 9, '9', 'Zlatan Ibrahimovic', 'Suede'),
+(59, 'Ligue 1', 8, '8', 'Jean-Pierre Papin', 'France'),
+(60, 'Ligue 1', 7, '7', 'Rai', 'Bresil'),
+(61, 'Ligue 1', 6, '6', 'Thiago Silva', 'Bresil'),
+(62, 'Ligue 1', 5, '5', 'Marco Verratti', 'Italie'),
+(63, 'Ligue 1', 4, '4', 'Youri Djorkaeff', 'France'),
+(64, 'Ligue 1', 3, '3', 'David Ginola', 'France'),
+(65, 'Ligue 1', 2, '2', 'Mathieu Valbuena', 'France')
+on conflict (id) do nothing;
+
+-- Seed: hand_types (bareme)
+insert into hand_types (nom, condition, base_points, base_mult) values
+('Solo', '1 carte', 5, 1),
+('Duo', '2 memes Note', 10, 2),
+('Double Duo', '2x2 memes Note', 20, 2),
+('Trio offensif', '3 memes Note', 30, 3),
+('Enchainement', '5 Notes consecutives', 30, 4),
+('Alignement', '5 meme Championnat', 35, 4),
+('Full', 'Trio + Duo', 40, 4),
+('Carre magique', '4 memes Note', 60, 7),
+('Cinq identique', '5 memes Note, 5 championnats differents', 80, 9),
+('Selection parfaite', 'Enchainement + Alignement', 100, 8),
+('Onze de legende', 'Selection parfaite avec As-Roi-Dame-Valet-10', 160, 12)
+on conflict (nom) do nothing;
+
+-- Seed: tactics (30)
+insert into tactics (nom, famille, rarete, prix, effet) values
+('Diaspora', 'Nationalite', 'Commune', 5, '+1 Mult par nationalite differente presente dans la main jouee.'),
+('Selectionneur National', 'Nationalite', 'Rare', 10, 'Mult x1.5 si les 5 joueurs de la main partagent la meme Nationalite.'),
+('Transfert International', 'Nationalite', 'Rare', 10, 'Une carte choisie peut compter pour 2 Nationalites au choix.'),
+('Doublette Historique', 'Nationalite', 'Rare', 10, '+Mult x1.5 supplementaire chaque fois que le bonus combo Championnat+Nationalite se declenche plus d''une fois.'),
+('Coeur de Baviere', 'Championnat', 'Rare', 10, 'Mult x2 si les 5 joueurs de la main sont du meme Championnat.'),
+('Ultras', 'Championnat', 'Commune', 5, '+15 points par carte partageant le Championnat le plus joue depuis le debut du match.'),
+('Detection de Talents', 'Note', 'Commune', 5, '+20 points par carte de Note <=5 jouee dans la main.'),
+('Ballon d''Or', 'Note', 'Rare', 10, '+3 Mult si la main contient un As (Note 14).'),
+('Pressing Haut', 'Note', 'Commune', 5, 'Les Duo rapportent des points bonus egaux a la Note du duo.'),
+('Retraite Prestigieux', 'Note', 'Commune', 5, 'Chaque carte de Note >=12 jouee rapporte +10 points fixes.'),
+('Doyen du Vestiaire', 'Note', 'Commune', 5, '+0.5 Mult par carte de Note <=4 presente dans le deck total.'),
+('Bizuth Prometteur', 'Note', 'Commune', 5, '+1 Mult par carte de Note <=6 jouee dans la main.'),
+('Effet Cruyff', 'Type de main', 'Legendaire', 18, 'Carre magique (ou mieux) rapporte x2 Mult supplementaire.'),
+('Sortie de Vestiaire', 'Timing', 'Commune', 5, '+2 Mult sur la toute premiere main jouee de chaque match.'),
+('Dernier Quart d''Heure', 'Timing', 'Rare', 9, '+3 Mult sur la derniere main jouee du match.'),
+('Capitanat', 'Ordre', 'Rare', 9, 'La carte jouee en 1ere position voit sa Note doublee pour la detection de main.'),
+('Numero 10', 'Ordre', 'Commune', 5, 'La carte en position centrale (3e) de la main gagne +Mult egal a sa Note/2.'),
+('Banc de Touche', 'Economie', 'Commune', 4, '+1 Ballon a chaque carte defaussee.'),
+('Sponsor Maillot', 'Economie', 'Commune', 5, '+5 Ballons a chaque match remporte.'),
+('Merchandising', 'Economie', 'Rare', 9, 'Le plafond d''interets sur les Ballons non depenses est augmente de 2.'),
+('Selection B', 'Economie', 'Commune', 5, 'Les mains Trio offensif ou mieux rapportent +1 Ballon par carte utilisee.'),
+('Agent Vereux', 'Risque', 'Rare', 8, 'Vend automatiquement la carte de plus faible Note de la main jouee pour des Ballons bonus, mais la retire du deck.'),
+('Carton Rouge', 'Risque', 'Rare', 9, 'La carte de plus haute Note jouee est ignoree dans le calcul des points, mais Mult x2 en compensation.'),
+('Coup Franc Direct', 'Utilitaire', 'Rare', 9, '1 fois par match : transforme un Solo en Duo en dupliquant temporairement une carte.'),
+('Sang Neuf', 'Utilitaire', 'Rare', 10, 'Entre chaque match, remplace automatiquement la carte de plus faible Note du deck par une carte aleatoire de Note superieure.'),
+('VAR Favorable', 'Utilitaire', 'Legendaire', 20, 'Annule l''effet penalisant d''un Grand Rival, une fois par match.'),
+('Doublure de Luxe', 'Utilitaire', 'Legendaire', 18, '1 fois par match : autorise a rejouer une main deja utilisee sans consommer de main disponible.'),
+('Legende Vivante', 'Utilitaire', 'Legendaire', 20, '1 fois par saison : transforme n''importe quelle carte jouee en As, pour cette main uniquement.'),
+('Cantera (Formation du Club)', 'Meta', 'Legendaire', 20, '+1 Mult permanent par saison deja completee sur le compte.'),
+('Palmares', 'Meta', 'Legendaire', 18, '+1 Ballon de depart par Trophee deja debloque sur le compte.')
+on conflict (nom) do nothing;
+
+-- Seed: trophies (96)
+insert into trophies (famille, ligne, palier, condition, pro_only) values
+('Performance', 'Score en une main', 'Amateur', '200 pts en une main', false),
+('Performance', 'Score en une main', 'Semi-pro', '1 000 pts en une main', false),
+('Performance', 'Score en une main', 'Pro', '5 000 pts en une main', false),
+('Performance', 'Score en une main', 'Legende', '20 000 pts en une main', false),
+('Performance', 'Score en un match', 'Amateur', '500 pts sur un match', false),
+('Performance', 'Score en un match', 'Semi-pro', '3 000 pts sur un match', false),
+('Performance', 'Score en un match', 'Pro', '15 000 pts sur un match', false),
+('Performance', 'Score en un match', 'Legende', '60 000 pts sur un match', false),
+('Performance', 'Score en une saison', 'Amateur', '5 000 pts cumules', false),
+('Performance', 'Score en une saison', 'Semi-pro', '25 000 pts cumules', false),
+('Performance', 'Score en une saison', 'Pro', '100 000 pts cumules', false),
+('Performance', 'Score en une saison', 'Legende', '500 000 pts cumules', false),
+('Performance', 'Duo joues', 'Amateur', '10 Duo', false),
+('Performance', 'Duo joues', 'Semi-pro', '50 Duo', false),
+('Performance', 'Duo joues', 'Pro', '200 Duo', false),
+('Performance', 'Duo joues', 'Legende', '1 000 Duo', false),
+('Performance', 'Alignements joues', 'Amateur', '5 Alignements', false),
+('Performance', 'Alignements joues', 'Semi-pro', '25 Alignements', false),
+('Performance', 'Alignements joues', 'Pro', '100 Alignements', false),
+('Performance', 'Alignements joues', 'Legende', '500 Alignements', false),
+('Performance', 'Carres magiques', 'Amateur', '1 Carre magique', false),
+('Performance', 'Carres magiques', 'Semi-pro', '10 Carres magiques', false),
+('Performance', 'Carres magiques', 'Pro', '50 Carres magiques', false),
+('Performance', 'Carres magiques', 'Legende', '200 Carres magiques', false),
+('Performance', 'Selections parfaites', 'Amateur', '1 Selection parfaite', false),
+('Performance', 'Selections parfaites', 'Semi-pro', '5 Selections parfaites', false),
+('Performance', 'Selections parfaites', 'Pro', '20 Selections parfaites', false),
+('Performance', 'Selections parfaites', 'Legende', '100 Selections parfaites', false),
+('Performance', 'Onze de legende', 'Amateur', '1 Onze de legende', false),
+('Performance', 'Onze de legende', 'Semi-pro', '3 Onze de legende', false),
+('Performance', 'Onze de legende', 'Pro', '10 Onze de legende', false),
+('Performance', 'Onze de legende', 'Legende', '50 Onze de legende', false),
+('Collection', 'Cartes decouvertes', 'Amateur', '10 joueurs', false),
+('Collection', 'Cartes decouvertes', 'Semi-pro', '30 joueurs', false),
+('Collection', 'Cartes decouvertes', 'Pro', '50 joueurs', false),
+('Collection', 'Cartes decouvertes', 'Legende', '65 joueurs (deck complet)', false),
+('Collection', 'Collection Premier League', 'Amateur', '5 joueurs PL', false),
+('Collection', 'Collection Premier League', 'Semi-pro', '8 joueurs PL', false),
+('Collection', 'Collection Premier League', 'Pro', '11 joueurs PL', false),
+('Collection', 'Collection Premier League', 'Legende', '13 joueurs PL (complet)', false),
+('Collection', 'Collection Liga', 'Amateur', '5 joueurs Liga', false),
+('Collection', 'Collection Liga', 'Semi-pro', '8 joueurs Liga', false),
+('Collection', 'Collection Liga', 'Pro', '11 joueurs Liga', false),
+('Collection', 'Collection Liga', 'Legende', '13 joueurs Liga (complet)', false),
+('Collection', 'Collection Serie A', 'Amateur', '5 joueurs Serie A', false),
+('Collection', 'Collection Serie A', 'Semi-pro', '8 joueurs Serie A', false),
+('Collection', 'Collection Serie A', 'Pro', '11 joueurs Serie A', false),
+('Collection', 'Collection Serie A', 'Legende', '13 joueurs Serie A (complet)', false),
+('Collection', 'Collection Bundesliga', 'Amateur', '5 joueurs Bundesliga', false),
+('Collection', 'Collection Bundesliga', 'Semi-pro', '8 joueurs Bundesliga', false),
+('Collection', 'Collection Bundesliga', 'Pro', '11 joueurs Bundesliga', false),
+('Collection', 'Collection Bundesliga', 'Legende', '13 joueurs Bundesliga (complet)', false),
+('Collection', 'Collection Ligue 1', 'Amateur', '5 joueurs Ligue 1', false),
+('Collection', 'Collection Ligue 1', 'Semi-pro', '8 joueurs Ligue 1', false),
+('Collection', 'Collection Ligue 1', 'Pro', '11 joueurs Ligue 1', false),
+('Collection', 'Collection Ligue 1', 'Legende', '13 joueurs Ligue 1 (complet)', false),
+('Collection', 'Nationalites representees', 'Amateur', '5 nationalites', false),
+('Collection', 'Nationalites representees', 'Semi-pro', '10 nationalites', false),
+('Collection', 'Nationalites representees', 'Pro', '15 nationalites', false),
+('Collection', 'Nationalites representees', 'Legende', '20 nationalites', false),
+('Progression', 'Saisons completees', 'Amateur', '1 saison', false),
+('Progression', 'Saisons completees', 'Semi-pro', '5 saisons', false),
+('Progression', 'Saisons completees', 'Pro', '20 saisons', false),
+('Progression', 'Saisons completees', 'Legende', '100 saisons', false),
+('Progression', 'Titres remportes', 'Amateur', '1 titre', false),
+('Progression', 'Titres remportes', 'Semi-pro', '5 titres', false),
+('Progression', 'Titres remportes', 'Pro', '20 titres', false),
+('Progression', 'Titres remportes', 'Legende', '50 titres', false),
+('Progression', 'Grands Rivaux battus', 'Amateur', '3 Grands Rivaux', false),
+('Progression', 'Grands Rivaux battus', 'Semi-pro', '15 Grands Rivaux', false),
+('Progression', 'Grands Rivaux battus', 'Pro', '50 Grands Rivaux', false),
+('Progression', 'Grands Rivaux battus', 'Legende', '150 Grands Rivaux', false),
+('Progression', 'Tactiques debloquees', 'Amateur', '5 Tactiques', false),
+('Progression', 'Tactiques debloquees', 'Semi-pro', '15 Tactiques', false),
+('Progression', 'Tactiques debloquees', 'Pro', '25 Tactiques', false),
+('Progression', 'Tactiques debloquees', 'Legende', '30 Tactiques (complet)', false),
+('Progression', 'Saison sans defaite', 'Semi-pro', '1 saison sans defaite', false),
+('Progression', 'Saison sans defaite', 'Pro', '3 saisons sans defaite', false),
+('Progression', 'Saison sans defaite', 'Legende', '10 saisons sans defaite', false),
+('Progression', 'Defi quotidien', 'Amateur', '1 Defi quotidien', true),
+('Progression', 'Defi quotidien', 'Semi-pro', '10 Defis quotidiens', true),
+('Progression', 'Defi quotidien', 'Pro', '50 Defis quotidiens', true),
+('Progression', 'Defi quotidien', 'Legende', '200 Defis quotidiens', true),
+('Progression', 'Duel', 'Amateur', '1 Duel gagne', true),
+('Progression', 'Duel', 'Semi-pro', '10 Duels gagnes', true),
+('Progression', 'Duel', 'Pro', '50 Duels gagnes', true),
+('Progression', 'Duel', 'Legende', '200 Duels gagnes', true),
+('Progression', 'Mode Championnat', 'Amateur', '1 saison Mode Championnat', true),
+('Progression', 'Mode Championnat', 'Semi-pro', '5 saisons', true),
+('Progression', 'Mode Championnat', 'Pro', '20 saisons', true),
+('Progression', 'Mode Championnat', 'Legende', 'saison dans les 5 championnats', true),
+('Progression', 'Economie', 'Amateur', '500 Ballons gagnes', false),
+('Progression', 'Economie', 'Semi-pro', '5 000 Ballons gagnes', false),
+('Progression', 'Economie', 'Pro', '25 000 Ballons gagnes', false),
+('Progression', 'Economie', 'Legende', '100 000 Ballons gagnes', false);
+
+-- Row Level Security de base (a affiner)
+alter table profiles enable row level security;
+alter table user_trophies enable row level security;
+create policy "profiles are viewable by owner" on profiles for select using (auth.uid() = id);
+create policy "profiles are editable by owner" on profiles for update using (auth.uid() = id);
+create policy "user_trophies viewable by owner" on user_trophies for select using (auth.uid() = user_id);

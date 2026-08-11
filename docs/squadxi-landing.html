@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SquadXI — Le roguelike de cartes football</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pitch-dark:#0A2E22;
+    --pitch-mid:#123F2E;
+    --pitch-line:#1E5A41;
+    --cream:#F3EFE1;
+    --cream-dim:#C9C3AE;
+    --gold:#D8A94E;
+    --gold-bright:#EFC873;
+    --red:#C24A3D;
+    --ink:#06140F;
+    --champ-pl:#37166B;
+    --champ-liga:#B3122C;
+    --champ-seriea:#0E4C86;
+    --champ-bundes:#8C1A1A;
+    --champ-ligue1:#0D3B66;
+    --radius:14px;
+    --shadow: 0 20px 50px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--pitch-dark);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;}
+  .display{font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.02em;}
+  .serif{font-family:'Fraunces',serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* background texture: subtle pitch stripes + vignette */
+  .pitch-bg{
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(216,169,78,0.10), transparent 55%),
+      repeating-linear-gradient(100deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 90px),
+      linear-gradient(180deg, var(--pitch-dark) 0%, var(--ink) 100%);
+  }
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* NAV */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(6,20,15,0.72);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid rgba(243,239,225,0.08);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; padding-top:14px; padding-bottom:14px;}
+  .logo{display:flex; align-items:center; gap:10px; font-size:20px; letter-spacing:0.03em;}
+  .logo-mark{
+    width:30px; height:30px; border-radius:7px;
+    background:linear-gradient(150deg, var(--gold-bright), var(--gold) 60%, #a97f2f);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink); font-family:'Anton',sans-serif; font-size:15px;
+  }
+  .navlinks{display:flex; gap:28px; font-size:14px; color:var(--cream-dim);}
+  .navlinks a{text-decoration:none; transition:color .2s;}
+  .navlinks a:hover{color:var(--gold-bright);}
+  .navcta{
+    font-size:13px; font-weight:700; padding:9px 18px; border-radius:999px;
+    background:var(--gold); color:var(--ink); text-decoration:none;
+    box-shadow:0 6px 20px rgba(216,169,78,0.25);
+    white-space:nowrap;
+  }
+  @media (max-width:800px){ .navlinks{display:none;} }
+
+  /* HERO */
+  .hero{padding:74px 0 90px; position:relative;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--gold-bright); font-weight:700; margin-bottom:22px;
+  }
+  .eyebrow::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--red); box-shadow:0 0 0 3px rgba(194,74,61,0.25);}
+  .hero h1{
+    font-size:clamp(42px, 8vw, 84px);
+    line-height:0.95; margin:0 0 20px; color:var(--cream);
+  }
+  .hero h1 span{color:var(--gold-bright);}
+  .hero-sub{
+    font-size:18px; color:var(--cream-dim); max-width:520px; line-height:1.55;
+    margin-bottom:34px;
+  }
+  .cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:56px;}
+  .btn-primary, .btn-ghost{
+    font-size:15px; font-weight:700; padding:14px 26px; border-radius:10px;
+    text-decoration:none; display:inline-block; transition:transform .15s, box-shadow .15s;
+  }
+  .btn-primary{background:var(--gold); color:var(--ink); box-shadow:0 10px 30px rgba(216,169,78,0.28);}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{border:1px solid rgba(243,239,225,0.25); color:var(--cream);}
+  .btn-ghost:hover{border-color:var(--gold-bright); color:var(--gold-bright);}
+
+  /* HERO CARD HAND */
+  .hand-stage{
+    position:relative; height:380px; display:flex; align-items:center; justify-content:center;
+    margin-top:20px;
+  }
+  .card{
+    position:absolute; width:132px; height:184px; border-radius:12px;
+    background:linear-gradient(160deg, #16493580, #0a2e2280);
+    border:1px solid rgba(243,239,225,0.14);
+    box-shadow:var(--shadow);
+    padding:10px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition:transform .4s ease;
+  }
+  .card .rank{font-family:'Fraunces',serif; font-weight:600; font-size:22px; color:var(--cream);}
+  .card .champ-tag{
+    font-size:9px; letter-spacing:0.08em; text-transform:uppercase; font-weight:700;
+    padding:3px 7px; border-radius:5px; align-self:flex-start; color:var(--cream);
+  }
+  .card .silhouette{
+    align-self:center; width:56px; height:56px; opacity:0.9;
+  }
+  .card .nat{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em;
+    color:var(--cream-dim); align-self:flex-end;
+  }
+  .c1{background-color:var(--champ-pl); transform:translateX(-220px) rotate(-16deg) translateY(18px);}
+  .c2{background-color:var(--champ-liga); transform:translateX(-110px) rotate(-8deg) translateY(4px);}
+  .c3{background-color:var(--champ-seriea); transform:translateX(0) rotate(0deg) translateY(-10px); z-index:3;}
+  .c4{background-color:var(--champ-bundes); transform:translateX(110px) rotate(8deg) translateY(4px);}
+  .c5{background-color:var(--champ-ligue1); transform:translateX(220px) rotate(16deg) translateY(18px);}
+  .hand-stage:hover .c1{transform:translateX(-230px) rotate(-16deg) translateY(2px);}
+  .hand-stage:hover .c2{transform:translateX(-115px) rotate(-8deg) translateY(-10px);}
+  .hand-stage:hover .c3{transform:translateX(0) rotate(0deg) translateY(-26px);}
+  .hand-stage:hover .c4{transform:translateX(115px) rotate(8deg) translateY(-10px);}
+  .hand-stage:hover .c5{transform:translateX(230px) rotate(16deg) translateY(2px);}
+
+  .scoreboard{
+    position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    background:var(--ink); border:1px solid rgba(216,169,78,0.4);
+    border-radius:10px; padding:10px 22px; text-align:center;
+    box-shadow:0 14px 40px rgba(0,0,0,0.5);
+    z-index:5;
+  }
+  .scoreboard .label{font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-bright); font-weight:700;}
+  .scoreboard .score{font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; color:var(--cream); letter-spacing:0.02em;}
+  @media (max-width:820px){
+    .hand-stage{height:300px; transform:scale(0.72);}
+    .scoreboard{top:-30px;}
+  }
+
+  /* SECTIONS shared */
+  section{padding:88px 0;}
+  .section-head{max-width:640px; margin-bottom:52px;}
+  .section-eyebrow{font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold-bright); font-weight:700; margin-bottom:14px;}
+  .section-head h2{font-size:clamp(30px,4.2vw,44px); margin:0 0 14px; color:var(--cream); line-height:1.05;}
+  .section-head p{font-size:16px; color:var(--cream-dim); line-height:1.6; margin:0;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
+  @media (max-width:900px){ .steps{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .steps{grid-template-columns:1fr;} }
+  .step{
+    background:rgba(243,239,225,0.03); border:1px solid rgba(243,239,225,0.08);
+    border-radius:var(--radius); padding:26px 22px;
+  }
+  .step .num{font-family:'Fraunces',serif; font-style:italic; font-size:34px; color:var(--gold); margin-bottom:14px; display:block;}
+  .step h3{margin:0 0 8px; font-size:17px; color:var(--cream);}
+  .step p{margin:0; font-size:14px; color:var(--cream-dim); line-height:1.55;}
+
+  /* SYSTEM 3 AXES */
+  .axes{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  @media (max-width:820px){ .axes{grid-template-columns:1fr;} }
+  .axis{
+    border-radius:var(--radius); padding:28px; position:relative; overflow:hidden;
+    border:1px solid rgba(243,239,225,0.1);
+  }
+  .axis.a1{background:linear-gradient(160deg, rgba(55,22,107,0.35), rgba(10,46,34,0.6));}
+  .axis.a2{background:linear-gradient(160deg, rgba(216,169,78,0.16), rgba(10,46,34,0.6));}
+  .axis.a3{background:linear-gradient(160deg, rgba(194,74,61,0.22), rgba(10,46,34,0.6));}
+  .axis .tag{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold-bright); letter-spacing:0.08em; text-transform:uppercase;}
+  .axis h3{font-size:22px; margin:10px 0 12px; color:var(--cream); font-family:'Fraunces',serif; font-weight:600;}
+  .axis p{font-size:14px; color:var(--cream-dim); line-height:1.6; margin:0;}
+
+  /* MODES */
+  .modes{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  @media (max-width:820px){ .modes{grid-template-columns:1fr;} }
+  .mode-card{
+    border-radius:18px; padding:32px; border:1px solid rgba(243,239,225,0.1);
+  }
+  .mode-free{background:linear-gradient(160deg, rgba(30,90,65,0.55), rgba(10,46,34,0.75));}
+  .mode-pro{background:linear-gradient(160deg, rgba(216,169,78,0.18), rgba(10,46,34,0.85)); border-color:rgba(216,169,78,0.35);}
+  .mode-badge{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    padding:5px 12px; border-radius:999px; margin-bottom:18px;
+  }
+  .mode-free .mode-badge{background:rgba(243,239,225,0.12); color:var(--cream);}
+  .mode-pro .mode-badge{background:var(--gold); color:var(--ink);}
+  .mode-card h3{font-size:26px; margin:0 0 14px; color:var(--cream);}
+  .mode-card ul{margin:0; padding:0; list-style:none;}
+  .mode-card li{
+    font-size:14px; color:var(--cream-dim); padding:9px 0; border-top:1px solid rgba(243,239,225,0.08);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .mode-card li:first-of-type{border-top:none;}
+  .mode-card li::before{content:'—'; color:var(--gold-bright); flex-shrink:0;}
+
+  /* TROPHIES */
+  .tiers{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+  @media (max-width:800px){ .tiers{grid-template-columns:1fr 1fr;} }
+  .tier{
+    text-align:center; padding:28px 16px; border-radius:var(--radius);
+    border:1px solid rgba(243,239,225,0.1); background:rgba(243,239,225,0.02);
+  }
+  .tier .badge{
+    width:52px; height:52px; margin:0 auto 14px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Anton',sans-serif; font-size:16px; color:var(--ink);
+  }
+  .tier1 .badge{background:linear-gradient(160deg,#cd8b5f,#8a5636);}
+  .tier2 .badge{background:linear-gradient(160deg,#c9cdd6,#8f96a3);}
+  .tier3 .badge{background:linear-gradient(160deg,var(--gold-bright),#a97f2f);}
+  .tier4 .badge{background:linear-gradient(160deg,#f3efe1,#c9c3ae);}
+  .tier h4{margin:0 0 6px; font-size:15px; color:var(--cream);}
+  .tier p{margin:0; font-size:12.5px; color:var(--cream-dim);}
+
+  /* PRICING */
+  .price-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:760px;}
+  @media (max-width:700px){ .price-grid{grid-template-columns:1fr;} }
+  .price-card{border-radius:18px; padding:30px; border:1px solid rgba(243,239,225,0.12);}
+  .price-card.highlight{border-color:var(--gold); background:rgba(216,169,78,0.06);}
+  .price-card .amount{font-family:'Anton',sans-serif; font-size:40px; color:var(--cream); margin:8px 0 2px;}
+  .price-card .period{font-size:13px; color:var(--cream-dim);}
+
+  footer{border-top:1px solid rgba(243,239,225,0.08); padding:48px 0 40px;}
+  .foot-grid{display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px;}
+  .foot-langs{display:flex; gap:8px; flex-wrap:wrap;}
+  .lang-pill{
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 10px; border-radius:6px;
+    background:rgba(243,239,225,0.06); color:var(--cream-dim);
+  }
+  .foot-legal{display:flex; gap:20px; font-size:13px; color:var(--cream-dim); flex-wrap:wrap;}
+  .foot-legal a{text-decoration:none;}
+  .foot-legal a:hover{color:var(--gold-bright);}
+  .foot-bottom{margin-top:32px; font-size:12px; color:rgba(201,195,174,0.5);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; scroll-behavior:auto !important;}
+  }
+</style>
+</head>
+<body>
+<div class="pitch-bg"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark">XI</span><span class="display">SquadXI</span></div>
+    <div class="navlinks">
+      <a href="#comment">Comment jouer</a>
+      <a href="#systeme">Le système</a>
+      <a href="#modes">Modes</a>
+      <a href="#trophees">Trophées</a>
+      <a href="#tarifs">Tarifs</a>
+    </div>
+    <a class="navcta" href="#tarifs">Rejoindre la liste d'attente</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Bientôt disponible — Saison de club 100% gratuite</div>
+    <h1 class="display">Construisez<br>votre <span>onze</span><br>de légende.</h1>
+    <p class="hero-sub">Un roguelike de cartes où chaque main est une véritable équipe. Alignez Championnat, Note et Nationalité pour enchaîner les combos — et gravir une saison entière, d'une carrière amateur jusqu'au titre.</p>
+    <div class="cta-row">
+      <a class="btn-primary" href="#tarifs">Rejoindre la liste d'attente</a>
+      <a class="btn-ghost" href="#comment">Voir comment ça marche</a>
+    </div>
+
+    <div class="hand-stage">
+      <div class="scoreboard">
+        <div class="label">Onze de légende</div>
+        <div class="score">×2 080</div>
+      </div>
+      <div class="card c1">
+        <div class="champ-tag" style="background:rgba(0,0,0,0.25)">Premier League</div>
+        <svg class="silhouette" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" fill="#F3EFE1" opacity="0.85"/><path d="M12 10c-4 0-6 2.4-6 6v3h12v-3c0-3.6-2-6-6-6z" fill="#F3EFE1" opacity="0.85"/></svg>
+        <div class="rank">As</div>
+        <div class="nat">FRA</div>
+      </div>
+      <div class="card c2">
+        <div class="champ-tag" style="background:rgba(0,0,0,0.25)">Liga</div>
+        <svg class="silhouette" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" fill="#F3EFE1" opacity="0.85"/><path d="M12 10c-4 0-6 2.4-6 6v3h12v-3c0-3.6-2-6-6-6z" fill="#F3EFE1" opacity="0.85"/></svg>
+        <div class="rank">Roi</div>
+        <div class="nat">POR</div>
+      </div>
+      <div class="card c3">
+        <div class="champ-tag" style="background:rgba(0,0,0,0.25)">Premier League</div>
+        <svg class="silhouette" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" fill="#F3EFE1" opacity="0.85"/><path d="M12 10c-4 0-6 2.4-6 6v3h12v-3c0-3.6-2-6-6-6z" fill="#F3EFE1" opacity="0.85"/></svg>
+        <div class="rank">Dame</div>
+        <div class="nat">ENG</div>
+      </div>
+      <div class="card c4">
+        <div class="champ-tag" style="background:rgba(0,0,0,0.25)">Bundesliga</div>
+        <svg class="silhouette" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" fill="#F3EFE1" opacity="0.85"/><path d="M12 10c-4 0-6 2.4-6 6v3h12v-3c0-3.6-2-6-6-6z" fill="#F3EFE1" opacity="0.85"/></svg>
+        <div class="rank">Valet</div>
+        <div class="nat">ENG</div>
+      </div>
+      <div class="card c5">
+        <div class="champ-tag" style="background:rgba(0,0,0,0.25)">Ligue 1</div>
+        <svg class="silhouette" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="6" r="3" fill="#F3EFE1" opacity="0.85"/><path d="M12 10c-4 0-6 2.4-6 6v3h12v-3c0-3.6-2-6-6-6z" fill="#F3EFE1" opacity="0.85"/></svg>
+        <div class="rank">10</div>
+        <div class="nat">CIV</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="comment">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Comment jouer</div>
+      <h2>Quatre gestes, une saison entière.</h2>
+      <p>Le principe tient en une phrase : composez une main de 5 cartes, enchaînez les combos, battez le score du match. Puis recommencez, plus fort.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num serif">01</span><h3>Tirez votre main</h3><p>Cinq cartes joueurs piochées dans votre deck de 65 légendes réparties sur 5 championnats.</p></div>
+      <div class="step"><span class="num serif">02</span><h3>Composez le combo</h3><p>Alignez Championnat, Note et Nationalité pour former Duo, Alignement, Carré magique ou mieux.</p></div>
+      <div class="step"><span class="num serif">03</span><h3>Battez le match</h3><p>Votre score doit dépasser celui exigé — Match aller, retour, puis le redouté Grand Rival.</p></div>
+      <div class="step"><span class="num serif">04</span><h3>Renforcez l'effectif</h3><p>Achetez Tactiques et joueurs au Mercato entre les matchs, avec les Ballons gagnés.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="systeme">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Le système</div>
+      <h2>Trois axes. Un nombre infini de combos.</h2>
+      <p>Chaque carte porte trois identités. Les deux premières déterminent la main que vous jouez. La troisième récompense les alignements parfaits.</p>
+    </div>
+    <div class="axes">
+      <div class="axis a1">
+        <div class="tag">Axe 01</div>
+        <h3>Championnat</h3>
+        <p>La "couleur" de la carte. Alignez cinq joueurs du même championnat pour un Alignement — la base de la plupart des gros scores.</p>
+      </div>
+      <div class="axis a2">
+        <div class="tag">Axe 02</div>
+        <h3>Note</h3>
+        <p>La "valeur", de 2 à As. Les Notes identiques ou consécutives forment Duo, Trio, Carré magique ou Enchaînement.</p>
+      </div>
+      <div class="axis a3">
+        <div class="tag">Axe 03</div>
+        <h3>Nationalité</h3>
+        <p>La couche bonus. Chaque paire de même nationalité ajoute du multiplicateur — et double si le championnat matche aussi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="modes">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Modes de jeu</div>
+      <h2>Gratuit pour toujours. Plus loin avec Pro.</h2>
+      <p>La Saison de club, cœur du jeu, restera intégralement gratuite. Le Mode Pro ouvre trois modes supplémentaires.</p>
+    </div>
+    <div class="modes">
+      <div class="mode-card mode-free">
+        <span class="mode-badge">Gratuit</span>
+        <h3>Saison de club</h3>
+        <ul>
+          <li>Deck complet des 65 joueurs, 5 championnats</li>
+          <li>Toutes les Tactiques et Trophées du mode de base</li>
+          <li>Aucune limite de parties</li>
+          <li>Montée, titres et coupes sur une saison complète</li>
+        </ul>
+      </div>
+      <div class="mode-card mode-pro">
+        <span class="mode-badge">Mode Pro</span>
+        <h3>Trois modes en plus</h3>
+        <ul>
+          <li><strong>Mode Championnat</strong> — un seul championnat, l'axe couleur devient le Club</li>
+          <li><strong>Défi quotidien</strong> — même deck pour tous, classement du jour</li>
+          <li><strong>Duel</strong> — affrontez un adversaire sur le même tirage</li>
+          <li>Trophées liés à ces modes débloqués</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="trophees">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Trophées</div>
+      <h2>Près de 100 trophées, du terrain vague à la légende.</h2>
+      <p>Quatre paliers de difficulté sur chaque ligne — performance, collection, progression. Tous visibles dès le départ, même les plus durs.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier tier1"><div class="badge">A</div><h4>Amateur</h4><p>Premiers pas, à la portée de tous</p></div>
+      <div class="tier tier2"><div class="badge">S</div><h4>Semi-pro</h4><p>Demande de la régularité</p></div>
+      <div class="tier tier3"><div class="badge">P</div><h4>Pro</h4><p>Réservé aux joueurs assidus</p></div>
+      <div class="tier tier4"><div class="badge">L</div><h4>Légende</h4><p>Presque impossible à atteindre</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tarifs">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Tarifs</div>
+      <h2>Sans engagement, sans surprise.</h2>
+      <p>Le jeu de base restera toujours gratuit. Le Mode Pro se prend au mois ou une fois pour toutes.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="mode-badge" style="background:rgba(243,239,225,0.12); color:var(--cream);">Mensuel</div>
+        <div class="amount display">CHF 2.-</div>
+        <div class="period">par mois, résiliable à tout moment</div>
+      </div>
+      <div class="price-card highlight">
+        <div class="mode-badge" style="background:var(--gold); color:var(--ink);">À vie</div>
+        <div class="amount display">CHF 15.-</div>
+        <div class="period">une fois, accès Pro pour toujours</div>
+      </div>
+    </div>
+    <div style="margin-top:32px;">
+      <a class="btn-primary" href="#">Rejoindre la liste d'attente</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="margin-bottom:14px;"><span class="logo-mark">XI</span><span class="display">SquadXI</span></div>
+        <div class="foot-langs">
+          <span class="lang-pill">FR</span><span class="lang-pill">EN</span><span class="lang-pill">ES</span>
+          <span class="lang-pill">PT</span><span class="lang-pill">IT</span><span class="lang-pill">DE</span>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <a href="#">Mentions légales</a>
+        <a href="#">CGU</a>
+        <a href="#">CGV</a>
+        <a href="#">Confidentialité</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="foot-bottom">SquadXI — maquette de démonstration. Les noms de joueurs affichés dans le prototype interne ne figurent pas ici pour cette raison.</div>
+  </div>
+</footer>
+
+</body>
+</html>
