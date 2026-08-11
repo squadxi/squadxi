@@ -1,3 +1,18 @@
+@keyframes sqx-toast-in {
+  0% {
+    opacity: 0;
+    transform: translateX(60px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-6px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
 .sqx-toast-stack {
   position: fixed;
   top: 16px;
@@ -9,7 +24,8 @@
 }
 
 .sqx-toast {
-  background: #1a1a1a;
+  background: linear-gradient(135deg, #241a04, #1a1a1a);
+  border: 1px solid var(--sqx-gold);
   color: #fff8dc;
   padding: 10px 16px;
   border-radius: 8px;
@@ -17,5 +33,6 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 14px rgba(240, 185, 11, 0.35);
+  animation: sqx-toast-in 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.1) both;
 }

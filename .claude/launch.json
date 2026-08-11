@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "squadxi-dev",
-      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
-      "runtimeArgs": ["C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js", "run", "dev"],
+      "runtimeExecutable": "C:\\Users\\ArcenVinsSA-Chappuis\\Desktop\\squadxi\\dev-wrapper.cmd",
+      "runtimeArgs": [],
       "port": 5173
     }
   ]

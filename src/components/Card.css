@@ -1,5 +1,17 @@
+@keyframes sqx-card-deal {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) rotate(-6deg) scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
 .sqx-card {
   --sqx-accent: #666;
+  --sqx-deal-delay: 0ms;
   position: relative;
   width: 118px;
   height: 166px;
@@ -14,6 +26,8 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
   transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
   overflow: hidden;
+  animation: sqx-card-deal 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.1) both;
+  animation-delay: var(--sqx-deal-delay);
 }
 
 .sqx-card:hover {
@@ -57,15 +71,13 @@
   transform: rotate(180deg);
 }
 
-.sqx-card__silhouette {
+.sqx-card__illustration {
   position: absolute;
-  top: 18px;
+  top: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 74px;
-  height: 74px;
-  color: #fff;
-  opacity: 0.85;
+  width: 100px;
+  height: 100px;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
 

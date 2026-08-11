@@ -86,7 +86,10 @@ export function MatchScreen({
         <div className="sqx-stat">
           <span className="sqx-stat__label">{t('match.score')}</span>
           <span className="sqx-stat__value">
-            {match.score} <span className="sqx-stat__target">/ {match.target}</span>
+            <span key={match.score} className="sqx-stat__value--score">
+              {match.score}
+            </span>{' '}
+            <span className="sqx-stat__target">/ {match.target}</span>
           </span>
         </div>
         <div className="sqx-stat">
@@ -179,13 +182,14 @@ export function MatchScreen({
       </div>
 
       <div className="sqx-hand">
-        {match.hand.map((card) => (
+        {match.hand.map((card, index) => (
           <Card
             key={card.id}
             card={card}
             groupField={groupField}
             selected={match.selectedIds.includes(card.id)}
             dimmed={isDimmed(card)}
+            dealDelay={index * 45}
             onClick={() => match.toggleSelect(card.id)}
           />
         ))}

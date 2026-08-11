@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { GameMode, PlayerCard } from '../types'
 import { CHAMPIONNAT_COLORS, CHAMPIONNAT_FLAGS } from '../lib/colors'
 import { flagFor } from '../lib/flags'
+import { PlayerIllustration } from './PlayerIllustration'
 import './HomeScreen.css'
 
 const STANDARD_CHAMPIONNATS = ['Premier League', 'Liga', 'Serie A', 'Bundesliga']
@@ -76,9 +77,13 @@ export function HomeScreen({ isPro, deck, onSelect, onOpenLeaderboard }: HomeScr
           <h2>{t('home.featuredTitle')}</h2>
           <p className="sqx-eyebrow">{t('home.featuredSubtitle', { count: deck?.length ?? 52, leagues: 4 })}</p>
           <div className="sqx-pitch">
-            {featured.map((card) => (
-              <div key={card.id} className="sqx-pip" style={{ '--sqx-accent': CHAMPIONNAT_COLORS[card.championnat] ?? '#666' } as React.CSSProperties}>
-                <span className="sqx-pip__note">{card.note === 14 ? 'A' : 'R'}</span>
+            {featured.map((card, index) => (
+              <div
+                key={card.id}
+                className="sqx-pip"
+                style={{ '--sqx-accent': CHAMPIONNAT_COLORS[card.championnat] ?? '#666', '--sqx-deal-delay': `${index * 60}ms` } as React.CSSProperties}
+              >
+                <PlayerIllustration card={card} jerseyColor={CHAMPIONNAT_COLORS[card.championnat] ?? '#666'} className="sqx-pip__illustration" />
                 <span className="sqx-pip__nom">{card.nom}</span>
                 <span className="sqx-pip__meta">
                   {flagFor(card.nationalite)} {card.championnat}

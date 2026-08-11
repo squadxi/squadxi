@@ -24,6 +24,17 @@
   letter-spacing: normal;
 }
 
+@keyframes sqx-season-end-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .sqx-season-end {
   max-width: 500px;
   margin: 80px auto;
@@ -31,6 +42,7 @@
   text-align: center;
   border-radius: 16px;
   border: 1px solid var(--sqx-panel-border);
+  animation: sqx-season-end-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.1) both;
 }
 
 .sqx-season-end--won {

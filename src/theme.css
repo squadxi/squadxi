@@ -77,14 +77,32 @@ button {
 }
 
 .sqx-button--primary {
+  position: relative;
   background: linear-gradient(180deg, var(--sqx-gold-light), var(--sqx-gold));
   color: #241a04;
   border: none;
   box-shadow: 0 5px 0 0 var(--sqx-gold-shadow);
+  overflow: hidden;
 }
 
 .sqx-button--primary:active:not(:disabled) {
   box-shadow: 0 2px 0 0 var(--sqx-gold-shadow);
+}
+
+.sqx-button--primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+
+.sqx-button--primary:hover:not(:disabled)::after {
+  left: 130%;
 }
 
 .sqx-panel {
