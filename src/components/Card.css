@@ -45,11 +45,6 @@
   box-shadow: 0 0 0 3px var(--sqx-gold-light), 0 12px 18px rgba(0, 0, 0, 0.55);
 }
 
-.sqx-card--dimmed {
-  opacity: 0.32;
-  filter: grayscale(0.6);
-}
-
 .sqx-card__corner {
   position: absolute;
   font-family: var(--sqx-font-display);

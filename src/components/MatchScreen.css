@@ -199,6 +199,10 @@
   min-height: 180px;
 }
 
+.sqx-hand__slot {
+  will-change: transform;
+}
+
 .sqx-actions {
   display: flex;
   justify-content: center;

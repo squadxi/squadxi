@@ -9,18 +9,17 @@ interface CardProps {
   groupField?: 'championnat' | 'club'
   selected?: boolean
   highlighted?: boolean
-  dimmed?: boolean
   dealDelay?: number
   onClick?: () => void
 }
 
-export function Card({ card, groupField = 'championnat', selected, highlighted, dimmed, dealDelay, onClick }: CardProps) {
+export function Card({ card, groupField = 'championnat', selected, highlighted, dealDelay, onClick }: CardProps) {
   const color = CHAMPIONNAT_COLORS[card.championnat] ?? '#666'
 
   return (
     <button
       type="button"
-      className={`sqx-card${selected ? ' sqx-card--selected' : ''}${highlighted ? ' sqx-card--highlighted' : ''}${dimmed ? ' sqx-card--dimmed' : ''}`}
+      className={`sqx-card${selected ? ' sqx-card--selected' : ''}${highlighted ? ' sqx-card--highlighted' : ''}`}
       style={{ '--sqx-accent': color, '--sqx-deal-delay': dealDelay != null ? `${dealDelay}ms` : '0ms' } as React.CSSProperties}
       onClick={onClick}
     >
